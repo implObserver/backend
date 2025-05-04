@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum Status {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELED
+}
+
+model User {
+  id         Int     @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  middleName String?
+  login      String  @unique
+  password   String
+
+  managerId    Int?
+  manager      User?  @relation("ManagerSubordinates", fields: [managerId], references: [id])
+  subordinates User[] @relation("ManagerSubordinates")
+
+  createdTasks  Task[] @relation("CreatorTasks")
+  assignedTasks Task[] @relation("AssignedTasks")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  refreshToken String?
+
+  @@index([managerId]) // Часто используется в связке начальник-подчинённый
+  @@index([createdAt]) // Удобно для сортировки и анализа по времени создания
+  @@index([updatedAt]) // Аналогично, для анализа обновлений
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  dueDate     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  priority    Priority
+  status      Status   @default(TODO)
+
+  creatorId Int
+  creator   User @relation("CreatorTasks", fields: [creatorId], references: [id])
+
+  assigneeId Int
+  assignee   User @relation("AssignedTasks", fields: [assigneeId], references: [id])
+
+  @@index([creatorId])
+  @@index([assigneeId])
+  @@index([dueDate])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt]) // Удобно для сортировки и анализа по времени создания
+  @@index([updatedAt]) // Аналогично, для анализа обновлений
+}
