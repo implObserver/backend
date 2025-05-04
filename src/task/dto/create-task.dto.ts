@@ -1,4 +1,4 @@
-import { Priority } from '@prisma/client'; // Пример импорта Enum из Prisma
+import { Priority, Status } from '@prisma/client'; // Пример импорта Enum из Prisma
 
 export class CreateTaskDto {
     title: string;
@@ -7,4 +7,5 @@ export class CreateTaskDto {
     priority: Priority;
     creatorId: number;
     assigneeId: number;
+    status: Status;
 }
