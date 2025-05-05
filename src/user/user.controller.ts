@@ -13,9 +13,9 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.userService.findAll(paginationDto);
+  @Get('/subordinates/:id')
+  findSubordinates(@Query() paginationDto: PaginationDto, @Param('id') id: string) {
+    return this.userService.findSubordinates(+id, paginationDto);
   }
 
   @Get(':id')

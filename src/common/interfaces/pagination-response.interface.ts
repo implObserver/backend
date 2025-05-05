@@ -11,3 +11,5 @@ export interface PaginationResponse<T> {
 export interface DataResponse<T> {
     data: T;
 }
+
+export type DeadlineFilter = 'today' | 'week' | 'future';

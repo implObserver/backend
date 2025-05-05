@@ -27,21 +27,24 @@ export class UserService {
     });
   }
 
-  async findAll(
-    paginationDto: PaginationDto,
+  async findSubordinates(
+    managerId: number,
+    paginationDto: PaginationDto
   ): Promise<PaginationResponse<PublicUserDto>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
-    const [users, total] = await Promise.all([
+    const [subordinates, total] = await Promise.all([
       this.prisma.user.findMany({
+        where: { managerId },
         skip,
         take: limit,
+        orderBy: { lastName: 'asc' },
       }),
-      this.prisma.user.count(),
+      this.prisma.user.count({ where: { managerId } }),
     ]);
 
-    const mappedUsers = users.map((user) =>
+    const mappedUsers = subordinates.map((user) =>
       mapUserToPublicUserDto(user),
     );
 
@@ -68,6 +71,14 @@ export class UserService {
     return {
       data: mappedUser,
     };
+  }
+
+  async findOneByLogin(login: string): Promise<User> {
+    const user = await this.prisma.user.findFirst({
+      where: { login },
+    })
+
+    return user as User;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {

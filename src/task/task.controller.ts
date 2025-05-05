@@ -7,12 +7,15 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PaginationDto } from 'src/common/dto/PaginationDto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('task')
 export class TaskController {
   constructor(private readonly taskService: TaskService) { }
@@ -30,6 +33,11 @@ export class TaskController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.taskService.findOne(+id);
+  }
+
+  @Get('/assignee/:id')
+  findByUser(@Param('id') id: string, @Query() paginationDto: PaginationDto) {
+    return this.taskService.findTasksByUserId(+id, paginationDto);
   }
 
   @Patch(':id')
